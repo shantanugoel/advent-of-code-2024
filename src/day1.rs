@@ -24,3 +24,20 @@ pub fn part1() {
 
     println!("Part 1: {}", distance);
 }
+
+pub fn part2() {
+    let list1: Vec<i32>;
+    let list2: Vec<i32>;
+    (list1, list2) = get_input();
+
+    let mut similarity_score = 0;
+    for x in list1.iter() {
+        for y in list2.iter() {
+            if x == y {
+                similarity_score += x;
+            }
+        }
+    }
+
+    println!("Part 2: {}", similarity_score);
+}
