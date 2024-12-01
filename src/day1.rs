@@ -1,4 +1,4 @@
-use crate::utils;
+use crate::utils::{self, Answer};
 
 fn get_input() -> (Vec<i32>, Vec<i32>) {
     let lines = utils::read_lines("./inputs/day1");
@@ -9,7 +9,7 @@ fn get_input() -> (Vec<i32>, Vec<i32>) {
     }).unzip()
 }
 
-pub fn part1() {
+pub fn part1() -> Answer {
     let mut list1: Vec<i32>;
     let mut list2: Vec<i32>;
     (list1, list2) = get_input();
@@ -22,10 +22,10 @@ pub fn part1() {
         distance += (x - y).abs();
     }
 
-    println!("Part 1: {}", distance);
+    distance.into()
 }
 
-pub fn part2() {
+pub fn part2() -> Answer{
     let list1: Vec<i32>;
     let list2: Vec<i32>;
     (list1, list2) = get_input();
@@ -39,5 +39,5 @@ pub fn part2() {
         }
     }
 
-    println!("Part 2: {}", similarity_score);
+    similarity_score.into()
 }

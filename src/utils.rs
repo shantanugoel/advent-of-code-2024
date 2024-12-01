@@ -7,3 +7,14 @@ pub fn read_lines(file_path: &str) -> Vec<String> {
         .collect::<Result<Vec<String>, _>>()
         .unwrap()
 }
+
+#[derive(Debug)]
+pub enum Answer {
+    Integer(i32),
+}
+
+impl From<i32> for Answer {
+    fn from(i: i32) -> Self {
+        Answer::Integer(i)
+    }
+}
