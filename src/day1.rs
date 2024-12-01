@@ -2,17 +2,20 @@ use crate::utils::{self, Answer};
 
 fn get_input() -> (Vec<i32>, Vec<i32>) {
     let lines = utils::read_lines("./inputs/day1");
-    lines.into_iter()
-    .map(|s| {
-        let parts: Vec<&str> = s.split_whitespace().collect();
-        (parts[0].parse::<i32>().unwrap(), parts[1].parse::<i32>().unwrap())
-    }).unzip()
+    lines
+        .into_iter()
+        .map(|s| {
+            let parts: Vec<&str> = s.split_whitespace().collect();
+            (
+                parts[0].parse::<i32>().unwrap(),
+                parts[1].parse::<i32>().unwrap(),
+            )
+        })
+        .unzip()
 }
 
 pub fn part1() -> Answer {
-    let mut list1: Vec<i32>;
-    let mut list2: Vec<i32>;
-    (list1, list2) = get_input();
+    let (mut list1, mut list2) = get_input();
     list1.sort();
     list2.sort();
 
@@ -25,10 +28,8 @@ pub fn part1() -> Answer {
     distance.into()
 }
 
-pub fn part2() -> Answer{
-    let list1: Vec<i32>;
-    let list2: Vec<i32>;
-    (list1, list2) = get_input();
+pub fn part2() -> Answer {
+    let (list1, list2) = get_input();
 
     let mut similarity_score = 0;
     for x in list1.iter() {
