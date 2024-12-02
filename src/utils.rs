@@ -18,3 +18,9 @@ impl From<i32> for Answer {
         Answer::Integer(i)
     }
 }
+
+impl From<usize> for Answer {
+    fn from(i: usize) -> Self {
+        Answer::Integer(i as i32)
+    }
+}
