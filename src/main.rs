@@ -9,17 +9,13 @@ fn main() {
 
     let now = Instant::now();
 
-    let answer = match day {
-        1 => match part {
-            1 => day1::part1(),
-            2 => day1::part2(),
-            _ => {
-                println!("Invalid part");
-                0.into()
-            }
-        },
+    let answer = match (day, part) {
+        (1, 1) => day1::part1(),
+        (1, 2) => day1::part2(),
+        (2, 1) => day2::part1(),
+        (2, 2) => day2::part2(),
         _ => {
-            println!("Invalid day");
+            println!("Invalid day or part");
             0.into()
         }
     };
