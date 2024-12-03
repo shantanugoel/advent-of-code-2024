@@ -4,6 +4,7 @@ use std::time::Instant;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+
     let day = args[1].parse().unwrap();
     let part = args[2].parse().unwrap();
 
@@ -16,6 +17,7 @@ fn main() {
         (2, 2) => day2::part2(),
         (3, 1) => day3::part1(),
         (3, 2) => day3::part2(),
+        (3, 3) => day3::visualize_part2(),
         _ => {
             println!("Invalid day or part");
             0.into()
