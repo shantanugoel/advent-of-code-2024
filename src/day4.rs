@@ -168,5 +168,45 @@ pub fn part1() -> Answer {
 }
 
 pub fn part2() -> Answer {
-    0.into()
+    let lines = get_input();
+    let cols = lines[0].len();
+    let rows = lines.len();
+
+    let mut result = 0;
+    for row in 0..rows {
+        for col in 0..cols {
+            if lines[row].chars().nth(col).unwrap() != 'A' {
+                continue;
+            }
+            let coords = Coordinates {
+                x: col,
+                y: row,
+                rows,
+                cols,
+            };
+            if let Some(left_top) = coords.step(&Direction::DiagonalUpBackward) {
+                if let Some(left_bottom) = coords.step(&Direction::DiagonalDownBackward) {
+                    if let Some(right_top) = coords.step(&Direction::DiagonalUpForward) {
+                        if let Some(right_bottom) = coords.step(&Direction::DiagonalDownForward) {
+                            let mas_1 = format!(
+                                "{}{}",
+                                lines[left_top.y].chars().nth(left_top.x).unwrap(),
+                                lines[right_bottom.y].chars().nth(right_bottom.x).unwrap()
+                            );
+                            let mas_2 = format!(
+                                "{}{}",
+                                lines[right_top.y].chars().nth(right_top.x).unwrap(),
+                                lines[left_bottom.y].chars().nth(left_bottom.x).unwrap()
+                            );
+                            if (mas_1 == "MS" || mas_1 == "SM") && (mas_2 == "MS" || mas_2 == "SM")
+                            {
+                                result += 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    result.into()
 }
