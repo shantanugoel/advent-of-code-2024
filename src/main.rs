@@ -20,6 +20,7 @@ fn main() {
         (3, 3) => day3::visualize_part2(),
         (4, 1) => day4::part1(),
         (4, 2) => day4::part2(),
+        (4, 3) => day4::visualize_part2(),
         _ => {
             println!("Invalid day or part");
             0.into()
