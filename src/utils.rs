@@ -12,11 +12,18 @@ pub fn read_lines(file_path: &str) -> Vec<String> {
 pub enum Answer {
     Integer32(i32),
     Integer64(i64),
+    UInteger32(u32),
 }
 
 impl From<i32> for Answer {
     fn from(i: i32) -> Self {
         Answer::Integer32(i)
+    }
+}
+
+impl From<u32> for Answer {
+    fn from(i: u32) -> Self {
+        Answer::UInteger32(i)
     }
 }
 
