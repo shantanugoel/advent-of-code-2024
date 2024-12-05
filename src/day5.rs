@@ -28,7 +28,6 @@ pub fn part1() -> Answer {
     let mut sum = 0;
 
     for page in pages.iter() {
-        // println!("Processing page: {:?}", page);
         let mut safe = true;
         'outer: for i in 0..page.len() - 1 {
             let mut safe_segment = format!("{}", page[i]);
@@ -47,7 +46,6 @@ pub fn part1() -> Answer {
             }
         }
         if safe {
-            // println!("ans {}", page[page.len() / 2]);
             sum += page[page.len() / 2];
         }
     }
@@ -55,5 +53,42 @@ pub fn part1() -> Answer {
 }
 
 pub fn part2() -> Answer {
-    0.into()
+    let (order, pages) = get_input();
+    let mut map: HashSet<String> = HashSet::new();
+    let mut sum = 0;
+
+    for page_iter in pages.iter() {
+        let mut page = page_iter.clone();
+        let mut safe = true;
+        for i in 0..page.len() - 1 {
+            let mut safe_segment = format!("{}", page[i]);
+            loop {
+                let mut inner_safe = true;
+                'outer: for j in i + 1..page.len() {
+                    safe_segment.push_str(format!(",{}", page[j]).as_str());
+                    if map.contains(safe_segment.as_str()) {
+                        continue;
+                    }
+                    for k in 0..order.len() {
+                        if page[i] == order[k].1 && page[j] == order[k].0 {
+                            let temp = page[i];
+                            page[i] = page[j];
+                            page[j] = temp;
+                            safe = false;
+                            inner_safe = false;
+                            break 'outer;
+                        }
+                    }
+                    map.insert(safe_segment.clone());
+                }
+                if inner_safe {
+                    break;
+                }
+            }
+        }
+        if !safe {
+            sum += page[page.len() / 2];
+        }
+    }
+    sum.into()
 }
