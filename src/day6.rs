@@ -1,6 +1,8 @@
+use std::collections::HashSet;
+
 use crate::utils::{self, Answer};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 enum Direction {
     Up,
     Down,
@@ -8,7 +10,7 @@ enum Direction {
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Layout {
     layout: Vec<String>,
     guard_position: (usize, usize),
@@ -189,8 +191,49 @@ pub fn part1(input: &str) -> Answer {
     sum.into()
 }
 
+fn detect_cycle(layout: &mut Layout) -> bool {
+    let mut vertices: HashSet<(usize, usize, Direction)> = HashSet::new();
+    let mut result = false;
+    loop {
+        let current_direction = layout.guard_direction;
+        if let Some(_) = layout.step() {
+            if current_direction != layout.guard_direction {
+                let vertex = (
+                    layout.guard_position.0,
+                    layout.guard_position.1,
+                    layout.guard_direction,
+                );
+                if vertices.contains(&vertex) {
+                    result = true;
+                    break;
+                }
+                vertices.insert(vertex);
+            }
+        } else {
+            break;
+        }
+    }
+
+    result
+}
+
 pub fn part2(input: &str) -> Answer {
-    0.into()
+    let layout = get_input(input);
+    let mut count = 0;
+
+    for i in 0..layout.layout.len() {
+        for j in 0..layout.layout[0].len() {
+            let position_data = layout.layout[i].chars().nth(j).unwrap();
+            if position_data != '#' && position_data != '^' {
+                let mut layout_clone = layout.clone();
+                layout_clone.layout[i].replace_range(j..j + 1, "#");
+                if detect_cycle(&mut layout_clone) {
+                    count += 1;
+                }
+            }
+        }
+    }
+    count.into()
 }
 
 #[cfg(test)]
@@ -199,7 +242,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        let answer = part1("./inputs/day6_sample");
-        assert_eq!(answer, 41.into());
+        assert_eq!(part1("./inputs/day6_sample"), 41.into());
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(part2("./inputs/day6_sample"), 6.into());
     }
 }
