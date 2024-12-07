@@ -14,6 +14,7 @@ pub enum Answer {
     Integer64(i64),
     UInteger32(u32),
     UInteger64(u64),
+    UInteger128(u128),
 }
 
 impl From<i32> for Answer {
@@ -31,6 +32,12 @@ impl From<u32> for Answer {
 impl From<u64> for Answer {
     fn from(i: u64) -> Self {
         Answer::UInteger64(i)
+    }
+}
+
+impl From<u128> for Answer {
+    fn from(i: u128) -> Self {
+        Answer::UInteger128(i)
     }
 }
 
