@@ -8,7 +8,7 @@ pub fn read_lines(file_path: &str) -> Vec<String> {
         .unwrap()
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Answer {
     Integer32(i32),
     Integer64(i64),
