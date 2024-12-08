@@ -69,7 +69,55 @@ pub fn part1(input: &str) -> Answer {
 }
 
 pub fn part2(input: &str) -> Answer {
-    todo!();
+    let (antennas, x_max, y_max) = get_input(input);
+    let mut antinodes: HashSet<(usize, usize)> = HashSet::new();
+    for antenna in antennas.map.values() {
+        for i in 0..antenna.len() {
+            for j in i + 1..antenna.len() {
+                let (x1, y1) = antenna[i];
+                let (x2, y2) = antenna[j];
+                let x_diff: i32 = x1 as i32 - x2 as i32;
+                let y_diff: i32 = y1 as i32 - y2 as i32;
+
+                let flips = [true, false];
+                for &flip in flips.iter() {
+                    let mut x_new;
+                    let mut y_new;
+                    if flip {
+                        x_new = x1 as i32;
+                        y_new = y1 as i32;
+                    } else {
+                        x_new = x2 as i32;
+                        y_new = y2 as i32;
+                    }
+                    loop {
+                        if flip {
+                            x_new = x_new + x_diff;
+                            y_new = y_new + y_diff;
+                        } else {
+                            x_new = x_new - x_diff;
+                            y_new = y_new - y_diff;
+                        }
+
+                        if x_new < 0 || x_new >= x_max as i32 || y_new < 0 || y_new >= y_max as i32
+                        {
+                            break;
+                        }
+                        if !antinodes.contains(&(x_new as usize, y_new as usize)) {
+                            antinodes.insert((x_new as usize, y_new as usize));
+                        }
+                    }
+                }
+                if !antinodes.contains(&(x1, y1)) {
+                    antinodes.insert((x1, y1));
+                }
+                if !antinodes.contains(&(x2, y2)) {
+                    antinodes.insert((x2, y2));
+                }
+            }
+        }
+    }
+    antinodes.len().into()
 }
 
 #[cfg(test)]
@@ -83,6 +131,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day8_sample"), 11387u128.into());
+        assert_eq!(part2("./inputs/day8_sample"), 34.into());
     }
 }
