@@ -73,8 +73,12 @@ pub fn part2(input: &str) -> Answer {
         }
     }
 
-    for file in files.iter_mut().rev() {
-        for space in spaces.iter_mut() {
+    let num_files = files.len();
+    for (file_index, file) in files.iter_mut().rev().enumerate() {
+        for (index, space) in spaces.iter_mut().enumerate() {
+            if index >= num_files - file_index - 1 {
+                break;
+            }
             if space.0 >= file.1 {
                 space.1.push(file.clone());
                 file.0 = 0;
@@ -84,29 +88,23 @@ pub fn part2(input: &str) -> Answer {
         }
     }
 
-    println!("Files: {:?}", files.len());
-    println!("Spaces: {:?}", spaces.len());
     let mut current_index = 0;
     let mut i = 0;
     files.iter().zip(spaces.iter()).for_each(|(file, space)| {
-        println!("{} File: {} size: {}", i, file.0, file.1);
         i += 1;
         for _ in 0..file.1 {
             checksum += file.0 * current_index;
             current_index += 1;
         }
         for space in space.1.iter() {
-            println!("Space File: {} size: {}", space.0, space.1);
             for _ in 0..space.1 {
                 checksum += space.0 * current_index;
                 current_index += 1;
             }
         }
-        println!("Space {}", space.0);
         for _ in 0..space.0 {
             current_index += 1;
         }
-        println!("{}", checksum);
     });
 
     checksum.into()
