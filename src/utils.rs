@@ -8,6 +8,15 @@ pub fn read_lines(file_path: &str) -> Vec<String> {
         .unwrap()
 }
 
+pub fn read_line(file_path: &str) -> String {
+    let file = std::fs::File::open(file_path).unwrap();
+    std::io::BufReader::new(file)
+        .lines()
+        .next()
+        .unwrap()
+        .unwrap()
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Answer {
     Integer32(i32),
