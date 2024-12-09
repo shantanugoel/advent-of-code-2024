@@ -54,7 +54,62 @@ pub fn part1(input: &str) -> Answer {
 }
 
 pub fn part2(input: &str) -> Answer {
-    todo!();
+    let data = utils::read_line(input);
+    let mut checksum = 0;
+
+    // Vec<(file_id, file_size)>
+    let mut files: Vec<(u64, u64)> = Vec::new();
+    let mut spaces: Vec<(u64, Vec<(u64, u64)>)> = Vec::new();
+
+    for (index, data) in data
+        .chars()
+        .enumerate()
+        .map(|(i, c)| (i, c.to_digit(10).unwrap()))
+    {
+        if index % 2 == 0 {
+            files.push((index as u64 / 2, data as u64));
+        } else {
+            spaces.push((data as u64, Vec::new()));
+        }
+    }
+
+    for file in files.iter_mut().rev() {
+        for space in spaces.iter_mut() {
+            if space.0 >= file.1 {
+                space.1.push(file.clone());
+                file.0 = 0;
+                space.0 -= file.1;
+                break;
+            }
+        }
+    }
+
+    println!("Files: {:?}", files.len());
+    println!("Spaces: {:?}", spaces.len());
+    let mut current_index = 0;
+    let mut i = 0;
+    files.iter().zip(spaces.iter()).for_each(|(file, space)| {
+        println!("{} File: {} size: {}", i, file.0, file.1);
+        i += 1;
+        for _ in 0..file.1 {
+            checksum += file.0 * current_index;
+            current_index += 1;
+        }
+        for space in space.1.iter() {
+            println!("Space File: {} size: {}", space.0, space.1);
+            for _ in 0..space.1 {
+                checksum += space.0 * current_index;
+                current_index += 1;
+            }
+        }
+        println!("Space {}", space.0);
+        for _ in 0..space.0 {
+            current_index += 1;
+        }
+        println!("{}", checksum);
+    });
+
+    checksum.into()
 }
 
 #[cfg(test)]
@@ -63,11 +118,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1("./inputs/day9_sample"), 1928.into());
+        assert_eq!(part1("./inputs/day9_sample"), 1928u64.into());
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day9_sample"), 34.into());
+        assert_eq!(part2("./inputs/day9_sample"), 2858u64.into());
     }
 }
