@@ -128,6 +128,33 @@ fn count_trail(map: &Map, point: &Point, endings: &mut Vec<Point>) -> u32 {
     count
 }
 
+fn count_rating(map: &Map, point: &Point) -> u32 {
+    let mut count = 0;
+
+    for direction in [
+        Direction::Up,
+        Direction::Down,
+        Direction::Left,
+        Direction::Right,
+    ]
+    .iter()
+    {
+        if let Some(next) = point.step(map, direction) {
+            let value = map.map[next.y][next.x];
+            let previous_value = map.map[point.y][point.x];
+            if value == previous_value + 1 {
+                if value == 9 {
+                    count += 1;
+                } else {
+                    count += count_rating(map, &next);
+                }
+            }
+        }
+    }
+
+    count
+}
+
 pub fn part1(input: &str) -> Answer {
     let (map, starts) = get_input(input);
 
@@ -141,8 +168,16 @@ pub fn part1(input: &str) -> Answer {
     num_trails.into()
 }
 
-pub fn part2(_: &str) -> Answer {
-    todo!();
+pub fn part2(input: &str) -> Answer {
+    let (map, starts) = get_input(input);
+
+    let mut ratings = 0;
+
+    for start in starts.iter() {
+        ratings += count_rating(&map, start);
+    }
+
+    ratings.into()
 }
 
 #[cfg(test)]
@@ -160,6 +195,9 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day10_sample"), 0.into());
+        assert_eq!(part2("./inputs/day10_sample6"), 3u32.into());
+        assert_eq!(part2("./inputs/day10_sample3"), 13u32.into());
+        assert_eq!(part2("./inputs/day10_sample7"), 227u32.into());
+        assert_eq!(part2("./inputs/day10_sample5"), 81u32.into());
     }
 }
