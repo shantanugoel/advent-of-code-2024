@@ -33,6 +33,8 @@ fn main() {
         (9, 2) => day9::part2("./inputs/day9"),
         (10, 1) => day10::part1("./inputs/day10"),
         (10, 2) => day10::part2("./inputs/day10"),
+        (11, 1) => day11::parts("./inputs/day11", 25),
+        (11, 2) => day11::parts("./inputs/day11", 75),
         _ => {
             println!("Invalid day or part");
             0.into()
