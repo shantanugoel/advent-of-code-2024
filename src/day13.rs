@@ -67,7 +67,7 @@ fn to_the_moon(
         solutions.push((a_moves, b_moves));
         return;
     }
-    if a_moves > 100 || b_moves > 100 {
+    if current_position.x > prize_location.x || current_position.y > prize_location.y {
         return;
     }
 
