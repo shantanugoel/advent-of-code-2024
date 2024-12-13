@@ -21,6 +21,7 @@ pub fn read_line(file_path: &str) -> String {
 pub enum Answer {
     Integer32(i32),
     Integer64(i64),
+    Integer128(i128),
     UInteger32(u32),
     UInteger64(u64),
     UInteger128(u128),
@@ -47,6 +48,12 @@ impl From<u64> for Answer {
 impl From<u128> for Answer {
     fn from(i: u128) -> Self {
         Answer::UInteger128(i)
+    }
+}
+
+impl From<i128> for Answer {
+    fn from(i: i128) -> Self {
+        Answer::Integer128(i)
     }
 }
 

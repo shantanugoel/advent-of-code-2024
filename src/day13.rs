@@ -4,8 +4,8 @@ use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Point {
-    x: u128,
-    y: u128,
+    x: i128,
+    y: i128,
 }
 
 impl Point {
@@ -19,8 +19,8 @@ impl Point {
 
 #[derive(Debug)]
 struct ButtonMove {
-    x: u128,
-    y: u128,
+    x: i128,
+    y: i128,
 }
 
 fn get_input(input: &str) -> Vec<(ButtonMove, ButtonMove, Point)> {
@@ -54,15 +54,14 @@ fn get_input(input: &str) -> Vec<(ButtonMove, ButtonMove, Point)> {
 
 fn to_the_moon(
     current_position: Point,
-    a_moves: u128,
-    b_moves: u128,
+    a_moves: i128,
+    b_moves: i128,
     a_cfg: &ButtonMove,
     b_cfg: &ButtonMove,
     prize_location: &Point,
-    tried_soltions: &mut HashSet<(u128, u128)>,
-    solutions: &mut Vec<(u128, u128)>,
+    tried_soltions: &mut HashSet<(i128, i128)>,
+    solutions: &mut Vec<(i128, i128)>,
 ) {
-    // println!("Prize: {:?} {} {}", prize_location, a_moves, b_moves);
     if current_position == *prize_location {
         solutions.push((a_moves, b_moves));
         return;
@@ -104,8 +103,8 @@ pub fn part1(input: &str) -> Answer {
 
     let mut result = 0;
     for machine in machines.iter() {
-        let mut solutions: Vec<(u128, u128)> = Vec::new();
-        let mut tried_solutions: HashSet<(u128, u128)> = HashSet::new();
+        let mut solutions: Vec<(i128, i128)> = Vec::new();
+        let mut tried_solutions: HashSet<(i128, i128)> = HashSet::new();
         to_the_moon(
             Point { x: 0, y: 0 },
             0,
@@ -116,17 +115,15 @@ pub fn part1(input: &str) -> Answer {
             &mut tried_solutions,
             &mut solutions,
         );
-        // println!("{:?}", solutions);
 
         if !solutions.is_empty() {
-            let mut min_tokens = std::u128::MAX;
+            let mut min_tokens = std::i128::MAX;
             for solution in solutions.iter() {
                 let tokens = solution.0 * 3 + solution.1;
                 if tokens < min_tokens {
                     min_tokens = tokens;
                 }
             }
-            // println!("{}", min_tokens);
             result += min_tokens;
         }
     }
@@ -134,50 +131,29 @@ pub fn part1(input: &str) -> Answer {
 }
 
 fn to_the_moon2(
-    current_position: Point,
-    a_moves: u128,
-    b_moves: u128,
     a_cfg: &ButtonMove,
     b_cfg: &ButtonMove,
     prize_location: &Point,
-    tried_soltions: &mut HashSet<(u128, u128)>,
-    solutions: &mut Vec<(u128, u128)>,
-) {
-    // println!("Prize: {:?} {} {}", prize_location, a_moves, b_moves);
-    if current_position == *prize_location {
-        solutions.push((a_moves, b_moves));
-        return;
+) -> Option<(i128, i128)> {
+    let mut result = None;
+    if (prize_location.y * a_cfg.x - prize_location.x * a_cfg.y)
+        % (b_cfg.y * a_cfg.x - b_cfg.x * a_cfg.y)
+        == 0
+    {
+        let b = (prize_location.y * a_cfg.x - prize_location.x * a_cfg.y)
+            / (b_cfg.y * a_cfg.x - b_cfg.x * a_cfg.y);
+        if (prize_location.y * b_cfg.x - prize_location.x * b_cfg.y)
+            % (a_cfg.y * b_cfg.x - b_cfg.y * a_cfg.x)
+            == 0
+        {
+            let a = (prize_location.y * b_cfg.x - prize_location.x * b_cfg.y)
+                / (a_cfg.y * b_cfg.x - b_cfg.y * a_cfg.x);
+            if a > 0 && b > 0 {
+                result = Some((a, b));
+            }
+        }
     }
-    if a_moves > 100 || b_moves > 100 {
-        return;
-    }
-
-    if !tried_soltions.contains(&(a_moves + 1, b_moves)) {
-        to_the_moon(
-            current_position.press_button(a_cfg),
-            a_moves + 1,
-            b_moves,
-            a_cfg,
-            b_cfg,
-            prize_location,
-            tried_soltions,
-            solutions,
-        );
-        tried_soltions.insert((a_moves + 1, b_moves));
-    }
-    if !tried_soltions.contains(&(a_moves, b_moves + 1)) {
-        to_the_moon(
-            current_position.press_button(b_cfg),
-            a_moves,
-            b_moves + 1,
-            a_cfg,
-            b_cfg,
-            prize_location,
-            tried_soltions,
-            solutions,
-        );
-        tried_soltions.insert((a_moves, b_moves + 1));
-    }
+    result
 }
 
 pub fn part2(input: &str) -> Answer {
@@ -185,34 +161,12 @@ pub fn part2(input: &str) -> Answer {
 
     let mut result = 0;
     for machine in machines.iter() {
-        let mut solutions: Vec<(u128, u128)> = Vec::new();
-        let mut tried_solutions: HashSet<(u128, u128)> = HashSet::new();
         let prize_location = Point {
             x: machine.2.x + 10000000000000,
             y: machine.2.y + 10000000000000,
         };
-        to_the_moon2(
-            Point { x: 0, y: 0 },
-            0,
-            0,
-            &machine.0,
-            &machine.1,
-            &prize_location,
-            &mut tried_solutions,
-            &mut solutions,
-        );
-        // println!("{:?}", solutions);
-
-        if !solutions.is_empty() {
-            let mut min_tokens = std::u128::MAX;
-            for solution in solutions.iter() {
-                let tokens = solution.0 * 3 + solution.1;
-                if tokens < min_tokens {
-                    min_tokens = tokens;
-                }
-            }
-            // println!("{}", min_tokens);
-            result += min_tokens;
+        if let Some(solution) = to_the_moon2(&machine.0, &machine.1, &prize_location) {
+            result += solution.0 * 3 + solution.1;
         }
     }
     result.into()
@@ -224,11 +178,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1("./inputs/day13_sample"), 480u128.into());
+        assert_eq!(part1("./inputs/day13_sample"), 480i128.into());
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day13_sample"), 0u64.into());
+        assert_eq!(part2("./inputs/day13_sample"), 480u64.into());
     }
 }
