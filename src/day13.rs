@@ -4,8 +4,8 @@ use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Point {
-    x: i32,
-    y: i32,
+    x: u128,
+    y: u128,
 }
 
 impl Point {
@@ -19,8 +19,8 @@ impl Point {
 
 #[derive(Debug)]
 struct ButtonMove {
-    x: i32,
-    y: i32,
+    x: u128,
+    y: u128,
 }
 
 fn get_input(input: &str) -> Vec<(ButtonMove, ButtonMove, Point)> {
@@ -54,13 +54,13 @@ fn get_input(input: &str) -> Vec<(ButtonMove, ButtonMove, Point)> {
 
 fn to_the_moon(
     current_position: Point,
-    a_moves: i32,
-    b_moves: i32,
+    a_moves: u128,
+    b_moves: u128,
     a_cfg: &ButtonMove,
     b_cfg: &ButtonMove,
     prize_location: &Point,
-    tried_soltions: &mut HashSet<(i32, i32)>,
-    solutions: &mut Vec<(i32, i32)>,
+    tried_soltions: &mut HashSet<(u128, u128)>,
+    solutions: &mut Vec<(u128, u128)>,
 ) {
     // println!("Prize: {:?} {} {}", prize_location, a_moves, b_moves);
     if current_position == *prize_location {
@@ -104,8 +104,8 @@ pub fn part1(input: &str) -> Answer {
 
     let mut result = 0;
     for machine in machines.iter() {
-        let mut solutions: Vec<(i32, i32)> = Vec::new();
-        let mut tried_solutions: HashSet<(i32, i32)> = HashSet::new();
+        let mut solutions: Vec<(u128, u128)> = Vec::new();
+        let mut tried_solutions: HashSet<(u128, u128)> = HashSet::new();
         to_the_moon(
             Point { x: 0, y: 0 },
             0,
@@ -119,7 +119,7 @@ pub fn part1(input: &str) -> Answer {
         // println!("{:?}", solutions);
 
         if !solutions.is_empty() {
-            let mut min_tokens = std::i32::MAX;
+            let mut min_tokens = std::u128::MAX;
             for solution in solutions.iter() {
                 let tokens = solution.0 * 3 + solution.1;
                 if tokens < min_tokens {
@@ -134,7 +134,41 @@ pub fn part1(input: &str) -> Answer {
 }
 
 pub fn part2(input: &str) -> Answer {
-    todo!();
+    let machines = get_input(input);
+
+    let mut result = 0;
+    for machine in machines.iter() {
+        let mut solutions: Vec<(u128, u128)> = Vec::new();
+        let mut tried_solutions: HashSet<(u128, u128)> = HashSet::new();
+        let prize_location = Point {
+            x: machine.2.x + 10000000000000,
+            y: machine.2.y + 10000000000000,
+        };
+        to_the_moon(
+            Point { x: 0, y: 0 },
+            0,
+            0,
+            &machine.0,
+            &machine.1,
+            &prize_location,
+            &mut tried_solutions,
+            &mut solutions,
+        );
+        // println!("{:?}", solutions);
+
+        if !solutions.is_empty() {
+            let mut min_tokens = std::u128::MAX;
+            for solution in solutions.iter() {
+                let tokens = solution.0 * 3 + solution.1;
+                if tokens < min_tokens {
+                    min_tokens = tokens;
+                }
+            }
+            // println!("{}", min_tokens);
+            result += min_tokens;
+        }
+    }
+    result.into()
 }
 
 #[cfg(test)]
@@ -143,7 +177,7 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1("./inputs/day13_sample"), 480i32.into());
+        assert_eq!(part1("./inputs/day13_sample"), 480u128.into());
     }
 
     #[test]
