@@ -67,7 +67,7 @@ fn to_the_moon(
         solutions.push((a_moves, b_moves));
         return;
     }
-    if current_position.x > prize_location.x || current_position.y > prize_location.y {
+    if a_moves > 100 || b_moves > 100 {
         return;
     }
 
@@ -133,6 +133,53 @@ pub fn part1(input: &str) -> Answer {
     result.into()
 }
 
+fn to_the_moon2(
+    current_position: Point,
+    a_moves: u128,
+    b_moves: u128,
+    a_cfg: &ButtonMove,
+    b_cfg: &ButtonMove,
+    prize_location: &Point,
+    tried_soltions: &mut HashSet<(u128, u128)>,
+    solutions: &mut Vec<(u128, u128)>,
+) {
+    // println!("Prize: {:?} {} {}", prize_location, a_moves, b_moves);
+    if current_position == *prize_location {
+        solutions.push((a_moves, b_moves));
+        return;
+    }
+    if a_moves > 100 || b_moves > 100 {
+        return;
+    }
+
+    if !tried_soltions.contains(&(a_moves + 1, b_moves)) {
+        to_the_moon(
+            current_position.press_button(a_cfg),
+            a_moves + 1,
+            b_moves,
+            a_cfg,
+            b_cfg,
+            prize_location,
+            tried_soltions,
+            solutions,
+        );
+        tried_soltions.insert((a_moves + 1, b_moves));
+    }
+    if !tried_soltions.contains(&(a_moves, b_moves + 1)) {
+        to_the_moon(
+            current_position.press_button(b_cfg),
+            a_moves,
+            b_moves + 1,
+            a_cfg,
+            b_cfg,
+            prize_location,
+            tried_soltions,
+            solutions,
+        );
+        tried_soltions.insert((a_moves, b_moves + 1));
+    }
+}
+
 pub fn part2(input: &str) -> Answer {
     let machines = get_input(input);
 
@@ -144,7 +191,7 @@ pub fn part2(input: &str) -> Answer {
             x: machine.2.x + 10000000000000,
             y: machine.2.y + 10000000000000,
         };
-        to_the_moon(
+        to_the_moon2(
             Point { x: 0, y: 0 },
             0,
             0,
