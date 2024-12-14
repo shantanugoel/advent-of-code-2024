@@ -87,7 +87,70 @@ pub fn part1(input: &str, lab_width: i32, lab_height: i32) -> Answer {
 }
 
 pub fn part2(input: &str, lab_width: i32, lab_height: i32) -> Answer {
-    todo!();
+    let mut time = 0;
+    let mut robots = get_input(input);
+
+    loop {
+        time += 1;
+        let mut matrix = vec![vec![' '; lab_width as usize]; lab_height as usize];
+        for robot in robots.iter_mut() {
+            let x_movement = (robot.velocity.x * time) % lab_width;
+            let y_movement = (robot.velocity.y * time) % lab_height;
+            let x;
+            let y;
+            if robot.velocity.x > 0 {
+                x = (robot.position.x + x_movement) % lab_width;
+            } else {
+                x = (robot.position.x + x_movement + lab_width) % lab_width;
+            }
+            if robot.velocity.y > 0 {
+                y = (robot.position.y + y_movement) % lab_height;
+            } else {
+                y = (robot.position.y + y_movement + lab_height) % lab_height;
+            }
+            matrix[y as usize][x as usize] = '*';
+        }
+        let mut found = true;
+        'vertical_tree: for x in 2..(lab_width - 2) as usize {
+            for y in 0..(lab_height - 2) as usize {
+                if matrix[y][x - 1] == ' ' && matrix[y][x + 1] == ' ' {
+                    found = true;
+                    for (y_factor, x_factor) in [
+                        (0 as i32, 0 as i32),
+                        (1, -1),
+                        (1, 0),
+                        (1, 1),
+                        (2, -2),
+                        (2, -1),
+                        (2, 0),
+                        (2, 1),
+                        (2, 2),
+                    ]
+                    .iter()
+                    {
+                        let new_x = (x as i32 + x_factor) as usize;
+                        let new_y = (y as i32 + y_factor) as usize;
+                        if matrix[new_y][new_x] == ' ' {
+                            found = false;
+                            break;
+                        }
+                    }
+                    if found {
+                        break 'vertical_tree;
+                    }
+                }
+            }
+        }
+        if found {
+            for line in matrix.iter() {
+                for c in line.iter() {
+                    print!("{}", c);
+                }
+                println!();
+            }
+            return time.into();
+        }
+    }
 }
 
 #[cfg(test)]
