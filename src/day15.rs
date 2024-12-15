@@ -96,27 +96,57 @@ impl Warehouse {
                     } else if self.layout[new_y as usize][*p_x as usize] == '.' {
                         continue;
                     } else {
-                        if self.layout[new_y as usize][*p_x as usize] == ']' {
-                            new_x = *p_x - 1;
-                        } else if self.layout[new_y as usize][*p_x as usize] == '[' {
-                            new_x = *p_x + 1;
+                        if self.layout[new_y as usize][*p_x as usize]
+                            != self.layout[old_y as usize][*p_x as usize]
+                        {
+                            if self.layout[new_y as usize][*p_x as usize] == ']' {
+                                new_x = *p_x - 1;
+                            } else if self.layout[new_y as usize][*p_x as usize] == '[' {
+                                new_x = *p_x + 1;
+                            } else if self.layout[new_y as usize][*p_x as usize] == '#' {
+                                positions.clear();
+                                break 'outer;
+                            }
+                            let entry = positions.entry(new_y).or_default();
+                            if !entry.contains(&new_x) {
+                                entry.push(new_x);
+                            }
                         }
-                        positions.entry(new_y).or_default().push(new_x);
-                        positions.entry(new_y).or_default().push(*p_x);
+                        let entry = positions.entry(new_y).or_default();
+                        if !entry.contains(p_x) {
+                            entry.push(*p_x);
+                        }
                     }
                 }
-                if !positions.contains_key(&new_y)
-                    || positions.get(&new_y).unwrap().len() == positions.get(&old_y).unwrap().len()
-                {
+                if !positions.contains_key(&new_y) {
                     break 'outer;
                 }
             }
-            for new_y in positions.keys() {
+            'final_check: for new_y in positions.keys() {
                 for new_x in positions.get(new_y).unwrap() {
-                    let temp = self.layout[*new_y as usize][*new_x as usize];
-                    self.layout[*new_y as usize][*new_x as usize] =
-                        self.layout[(*new_y + y) as usize][*new_x as usize];
-                    self.layout[(*new_y + y) as usize][*new_x as usize] = temp;
+                    if self.layout[(*new_y + y) as usize][*new_x as usize] == '#' {
+                        positions.clear();
+                        break 'final_check;
+                    }
+                }
+            }
+            if y < 0 {
+                for new_y in positions.keys() {
+                    for new_x in positions.get(new_y).unwrap() {
+                        let temp = self.layout[*new_y as usize][*new_x as usize];
+                        self.layout[*new_y as usize][*new_x as usize] =
+                            self.layout[(*new_y + y) as usize][*new_x as usize];
+                        self.layout[(*new_y + y) as usize][*new_x as usize] = temp;
+                    }
+                }
+            } else {
+                for new_y in positions.keys().rev() {
+                    for new_x in positions.get(new_y).unwrap() {
+                        let temp = self.layout[*new_y as usize][*new_x as usize];
+                        self.layout[*new_y as usize][*new_x as usize] =
+                            self.layout[(*new_y + y) as usize][*new_x as usize];
+                        self.layout[(*new_y + y) as usize][*new_x as usize] = temp;
+                    }
                 }
             }
             if !positions.is_empty() {
@@ -213,20 +243,20 @@ fn get_input2(input: &str) -> (Warehouse, Vec<char>) {
 pub fn part2(input: &str) -> Answer {
     let (mut warehouse, movements) = get_input2(input);
 
-    let mut i = 0;
     for movement in movements.iter() {
         warehouse.step2(*movement);
-        for row in warehouse.layout.iter() {
-            println!("{}", row.iter().collect::<String>());
-        }
-        i += 1;
     }
 
+    // for (y, row) in warehouse.layout.iter().enumerate() {
+    //     println!("{}: {}", y, row.iter().collect::<String>());
+    // }
     let mut result: u64 = 0;
     for (y, row) in warehouse.layout.iter().enumerate() {
         for (x, col) in row.iter().enumerate() {
-            if *col == 'O' {
-                result += (100 * y as u64) + x as u64;
+            if *col == '[' {
+                let left_distance = x;
+                let top_distance = y;
+                result += 100 * top_distance as u64 + left_distance as u64;
             }
         }
     }
@@ -246,7 +276,7 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day15_sample3"), 315.into());
-        assert_eq!(part2("./inputs/day15_sample2"), 315.into());
+        // assert_eq!(part2("./inputs/day15_sample3"), 315.into());
+        assert_eq!(part2("./inputs/day15_sample"), 9021u64.into());
     }
 }
