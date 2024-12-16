@@ -213,9 +213,9 @@ fn parse2(
                 );
             }
             if !positions_tried.contains_key(&(position_x, position_y, direction))
-                || positions_tried[&(position_x, position_y, direction)] > score
+                || positions_tried[&(position_x, position_y, direction)] > new_score
             {
-                positions_tried.insert((position_x, position_y, direction), score);
+                positions_tried.insert((position_x, position_y, direction), new_score);
             }
         }
     }
