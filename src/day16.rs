@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, vec};
 
 use crate::utils::{self, Answer};
 
@@ -128,7 +128,11 @@ fn parse(
                     all_scores.push(new_score);
                 }
             }
-            positions_tried.insert((position_x, position_y, direction), new_score);
+            if !positions_tried.contains_key(&(position_x, position_y, direction))
+                || positions_tried[&(position_x, position_y, direction)] > score
+            {
+                positions_tried.insert((position_x, position_y, direction), score);
+            }
         }
     }
 }
@@ -146,8 +150,155 @@ pub fn part1(input: &str) -> Answer {
     all_scores[0].into()
 }
 
+fn parse2(
+    maze: &Maze,
+    deer_position: (usize, usize),
+    deer_direction: Direction,
+    all_scores: &mut Vec<u64>,
+    positions_tried: &mut HashMap<(usize, usize, Direction), u64>,
+) {
+    let mut positions_to_try: Vec<(usize, usize, Direction, u64)> = Vec::new();
+    positions_to_try.push((deer_position.0, deer_position.1, deer_direction, 0));
+    loop {
+        if positions_to_try.is_empty() {
+            break;
+        }
+        let (position_x, position_y, old_direction, score) = positions_to_try.pop().unwrap();
+        for direction in [
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ] {
+            if direction == old_direction.opposite() {
+                continue;
+            }
+            let new_score;
+            if direction == old_direction {
+                new_score = score + 1;
+            } else {
+                new_score = score + 1001;
+            }
+            if let Some(new_position) = maze.step((position_x, position_y), &direction) {
+                if new_position != maze.end_position {
+                    if !positions_tried.contains_key(&(new_position.0, new_position.1, direction))
+                        || positions_tried[&(new_position.0, new_position.1, direction)] > new_score
+                    {
+                        if new_position == (1, 5) {
+                            println!(
+                                "Inserting Position {:?} {:?} {}",
+                                (new_position.0, new_position.1),
+                                direction,
+                                score
+                            );
+                        }
+                        positions_to_try.push((
+                            new_position.0,
+                            new_position.1,
+                            direction,
+                            new_score,
+                        ));
+                    }
+                } else {
+                    all_scores.push(new_score);
+                }
+            }
+            if position_x == 1 && position_y == 5 {
+                println!(
+                    "Position {:?} {:?} {} {}",
+                    (position_x, position_y),
+                    direction,
+                    score,
+                    new_score
+                );
+            }
+            if !positions_tried.contains_key(&(position_x, position_y, direction))
+                || positions_tried[&(position_x, position_y, direction)] > score
+            {
+                positions_tried.insert((position_x, position_y, direction), score);
+            }
+        }
+    }
+}
+
 pub fn part2(input: &str) -> Answer {
-    todo!();
+    let maze = get_input(input);
+    let mut all_scores: Vec<u64> = Vec::new();
+    let mut positions_tried: HashMap<(usize, usize, Direction), u64> = HashMap::new();
+    parse2(
+        &maze,
+        (1, maze.height - 2),
+        Direction::Right,
+        &mut all_scores,
+        &mut positions_tried,
+    );
+    all_scores.sort_unstable();
+    let lowest = all_scores[0];
+
+    let mut positions_to_try: Vec<(usize, usize, u64)> =
+        vec![(maze.end_position.0, maze.end_position.1, lowest)];
+
+    let mut maze_map: Vec<Vec<i32>> = vec![vec![0; maze.map[0].len()]; maze.height];
+
+    loop {
+        if positions_to_try.is_empty() {
+            break;
+        }
+        println!("{:?}", positions_to_try);
+        let (position_x, position_y, score) = positions_to_try.pop().unwrap();
+
+        let mut new_positions_to_try: Vec<(usize, usize, u64)> = Vec::new();
+        for direction in [
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ] {
+            if let Some(new_position) = maze.step((position_x, position_y), &direction) {
+                if new_position != (1, maze.height - 2)
+                    && positions_tried.contains_key(&(
+                        new_position.0,
+                        new_position.1,
+                        direction.opposite(),
+                    ))
+                {
+                    println!(
+                        "Position {:?} {:?} {}",
+                        new_position,
+                        direction.opposite(),
+                        positions_tried
+                            .get(&(new_position.0, new_position.1, direction.opposite()))
+                            .unwrap_or(&0)
+                    );
+                    println!("Compare with {}", score);
+                    let position_score =
+                        positions_tried[&(new_position.0, new_position.1, direction.opposite())];
+                    if position_score < score {
+                        new_positions_to_try.push((new_position.0, new_position.1, position_score));
+                    }
+                }
+            }
+        }
+
+        for position in new_positions_to_try {
+            println!("Position being entered {:?}", position);
+            maze_map[position.1][position.0] += 1;
+            positions_to_try.push(position);
+        }
+    }
+
+    let mut count = 2;
+    for row in maze_map.iter() {
+        for col in row.iter() {
+            print!("{} ", col);
+            if *col > 0 {
+                count += 1;
+            }
+        }
+        println!();
+    }
+
+    count.into()
 }
 
 #[cfg(test)]
@@ -162,6 +313,7 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2("./inputs/day16_sample"), 11048u64.into());
+        assert_eq!(part2("./inputs/day16_sample"), 45i32.into());
+        assert_eq!(part2("./inputs/day16_sample2"), 64i32.into());
     }
 }
