@@ -77,7 +77,6 @@ fn get_input(input: &str) -> Maze {
     }
 
     Maze {
-        width,
         height,
         map,
         end_position,
@@ -92,7 +91,7 @@ fn parse(
 ) {
     let mut positions_to_try: Vec<(usize, usize, Direction, u64)> = Vec::new();
     let mut positions_tried: HashMap<(usize, usize, Direction), u64> = HashMap::new();
-    positions_to_try.push((deer_position.0, deer_position.1, deer_direction, 1));
+    positions_to_try.push((deer_position.0, deer_position.1, deer_direction, 0));
     loop {
         if positions_to_try.is_empty() {
             break;
@@ -107,13 +106,13 @@ fn parse(
             if direction == old_direction.opposite() {
                 continue;
             }
+            let new_score;
+            if direction == old_direction {
+                new_score = score + 1;
+            } else {
+                new_score = score + 1001;
+            }
             if let Some(new_position) = maze.step((position_x, position_y), &direction) {
-                let new_score;
-                if direction == old_direction {
-                    new_score = score + 1;
-                } else {
-                    new_score = score + 1001;
-                }
                 if new_position != maze.end_position {
                     if !positions_tried.contains_key(&(new_position.0, new_position.1, direction))
                         || positions_tried[&(new_position.0, new_position.1, direction)] > new_score
@@ -126,10 +125,10 @@ fn parse(
                         ));
                     }
                 } else {
-                    all_scores.push(score);
+                    all_scores.push(new_score);
                 }
             }
-            positions_tried.insert((position_x, position_y, direction), score);
+            positions_tried.insert((position_x, position_y, direction), new_score);
         }
     }
 }
