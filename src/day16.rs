@@ -184,14 +184,6 @@ fn parse2(
                     if !positions_tried.contains_key(&(new_position.0, new_position.1, direction))
                         || positions_tried[&(new_position.0, new_position.1, direction)] > new_score
                     {
-                        if new_position == (1, 5) {
-                            println!(
-                                "Inserting Position {:?} {:?} {}",
-                                (new_position.0, new_position.1),
-                                direction,
-                                score
-                            );
-                        }
                         positions_to_try.push((
                             new_position.0,
                             new_position.1,
@@ -202,15 +194,6 @@ fn parse2(
                 } else {
                     all_scores.push(new_score);
                 }
-            }
-            if position_x == 1 && position_y == 5 {
-                println!(
-                    "Position {:?} {:?} {} {}",
-                    (position_x, position_y),
-                    direction,
-                    score,
-                    new_score
-                );
             }
             if !positions_tried.contains_key(&(position_x, position_y, direction))
                 || positions_tried[&(position_x, position_y, direction)] > new_score
@@ -233,7 +216,7 @@ pub fn part2(input: &str) -> Answer {
         &mut positions_tried,
     );
     all_scores.sort_unstable();
-    let lowest = all_scores[0];
+    let lowest = all_scores[0] + 1;
 
     let mut positions_to_try: Vec<(usize, usize, u64)> =
         vec![(maze.end_position.0, maze.end_position.1, lowest)];
@@ -244,7 +227,6 @@ pub fn part2(input: &str) -> Answer {
         if positions_to_try.is_empty() {
             break;
         }
-        println!("{:?}", positions_to_try);
         let (position_x, position_y, score) = positions_to_try.pop().unwrap();
 
         let mut new_positions_to_try: Vec<(usize, usize, u64)> = Vec::new();
@@ -262,15 +244,6 @@ pub fn part2(input: &str) -> Answer {
                         direction.opposite(),
                     ))
                 {
-                    println!(
-                        "Position {:?} {:?} {}",
-                        new_position,
-                        direction.opposite(),
-                        positions_tried
-                            .get(&(new_position.0, new_position.1, direction.opposite()))
-                            .unwrap_or(&0)
-                    );
-                    println!("Compare with {}", score);
                     let position_score =
                         positions_tried[&(new_position.0, new_position.1, direction.opposite())];
                     if position_score < score {
@@ -281,7 +254,6 @@ pub fn part2(input: &str) -> Answer {
         }
 
         for position in new_positions_to_try {
-            println!("Position being entered {:?}", position);
             maze_map[position.1][position.0] += 1;
             positions_to_try.push(position);
         }
@@ -290,12 +262,10 @@ pub fn part2(input: &str) -> Answer {
     let mut count = 2;
     for row in maze_map.iter() {
         for col in row.iter() {
-            print!("{} ", col);
             if *col > 0 {
                 count += 1;
             }
         }
-        println!();
     }
 
     count.into()
